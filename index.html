@@ -18,104 +18,98 @@
             color: #1e293b;
         }
         
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         .table-container {
             background: white;
             border-radius: 24px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02);
             overflow: hidden;
             border: 1px solid #f1f5f9;
         }
 
         .scroll-wrapper {
-            max-height: 600px;
-            overflow-y: auto;
-            overflow-x: auto;
+            max-height: 700px;
+            overflow: auto;
         }
 
         .premium-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
+            min-width: 1800px;
         }
 
         .premium-table thead th {
             position: sticky;
             top: 0;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(8px);
             z-index: 20;
-            padding: 16px 20px;
+            padding: 16px 15px;
             text-align: left;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: #64748b;
             border-bottom: 2px solid #f1f5f9;
+            white-space: nowrap;
         }
 
-        .premium-table tbody tr:hover {
-            background-color: #f8fafc;
-        }
+        .premium-table tbody tr:hover { background-color: #f8fafc; }
 
         .premium-table td {
-            padding: 18px 20px;
-            font-size: 13px;
+            padding: 14px 15px;
+            font-size: 12px;
             border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
+            white-space: nowrap;
         }
 
         .status-pill {
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 99px;
-            font-size: 10px;
-            font-weight: 700;
+            font-size: 9px;
+            font-weight: 800;
             display: inline-flex;
             align-items: center;
             gap: 4px;
         }
         
         .status-submitted { background: #eef2ff; color: #4f46e5; }
+        .status-approved { background: #e0f2fe; color: #0369a1; }
+        .status-onprocess { background: #fffbeb; color: #d97706; }
         .status-completed { background: #ecfdf5; color: #059669; }
         .status-canceled { background: #fff1f2; color: #e11d48; }
+        .status-rejected { background: #fef2f2; color: #991b1b; }
+        .status-default { background: #f1f5f9; color: #64748b; }
 
-        .durasi-circle {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 12px;
-        }
-        
-        .dur-red { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-        .dur-orange { background: #ffedd5; color: #ea580c; border: 1px solid #fed7aa; }
-        .dur-green { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+        .order-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #4f46e5; }
+        .currency { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #0f172a; }
 
-        .order-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #0f172a; }
-
-        .top-priority-card {
-            min-width: 220px;
+        .priority-card {
+            min-width: 280px;
             background: white;
             border: 1px solid #f1f5f9;
-            border-radius: 16px;
-            padding: 14px;
-            transition: all 0.3s ease;
+            border-radius: 20px;
+            padding: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .top-priority-card:hover { transform: translateY(-3px); border-color: #dc2626; box-shadow: 0 8px 12px -3px rgba(220, 38, 38, 0.08); }
+        .priority-card:hover {
+            transform: translateY(-4px);
+            border-color: #fb7185;
+            box-shadow: 0 12px 20px -8px rgba(225, 29, 72, 0.1);
+        }
 
         #pdfPreviewModal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             backdrop-filter: blur(4px);
             z-index: 100;
         }
@@ -123,95 +117,156 @@
 </head>
 <body class="p-4 md:p-8">
 
-    <div class="max-w-[1600px] mx-auto">
+    <div class="max-w-[1800px] mx-auto">
         <!-- Header -->
         <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
             <div>
                 <div class="flex items-center gap-3 mb-2">
-                    <div class="bg-indigo-600 p-2 rounded-lg">
+                    <div class="bg-indigo-600 p-2 rounded-lg shadow-indigo-200 shadow-lg">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                     </div>
-                    <h1 class="text-2xl font-black tracking-tight text-slate-900">MONITORING <span class="text-indigo-600">ORDER</span></h1>
+                    <h1 class="text-2xl font-black tracking-tight text-slate-900 uppercase">MONITORING <span class="text-indigo-600">ORDER</span> PPTS</h1>
                 </div>
-                <p class="text-slate-500 text-sm font-medium">Monitoring Real-time Pesanan & Distribusi Kios</p>
+                <p class="text-slate-500 text-sm font-medium">Penerima Pada Titik Serah</p>
             </div>
 
             <div class="flex items-center gap-3">
-                <button id="btnExportPDF" onclick="openPdfPreview()" class="hidden group bg-white border border-slate-200 hover:border-indigo-200 text-slate-700 px-5 py-3 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
+                <button id="btnExportPDF" onclick="openPdfPreview()" class="hidden bg-white border border-slate-200 hover:border-rose-200 text-slate-700 px-5 py-3 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
                     <svg class="w-4 h-4 text-rose-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 16l-4-4h3V4h2v8h3l-4 4zm9-8v10c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V8c0-1.1.9-2 2-2h4v2H5v10h14V8h-4V6h4c1.1 0 2 .9 2 2z"/></svg>
-                    CETAK PDF
+                    CETAK LAPORAN
                 </button>
-                <label class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl text-xs font-black cursor-pointer transition-all flex items-center gap-2">
+                <label class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl text-xs font-black cursor-pointer transition-all flex items-center gap-3 shadow-lg shadow-indigo-100">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    IMPORT DATA
+                    UNGGAH DATA (CSV/XLSX)
                     <input type="file" id="csvFileInput" accept=".csv, .xlsx, .xls" class="hidden">
                 </label>
             </div>
         </header>
 
-        <!-- Top 5 Priority View -->
-        <div id="priorityView" class="hidden mb-10">
-            <h2 class="text-[9px] font-black text-rose-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                <span class="flex h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-                Top 5 Durasi Terlama (Menunggu)
-            </h2>
-            <div id="priorityContainer" class="flex gap-3 overflow-x-auto pb-4">
-                <!-- Priority cards inserted here -->
+        <!-- Stats Major -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-indigo-600 p-6 rounded-3xl border border-indigo-500 shadow-lg shadow-indigo-100 flex flex-col justify-center">
+                <p class="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-1">Total Transaksi (Count)</p>
+                <span id="statCount" class="text-3xl font-black text-white">0</span>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-center">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Nilai Transaksi Terfilter</p>
+                <span id="statTotalNilai" class="text-3xl font-black text-indigo-600">Rp 0</span>
             </div>
         </div>
 
-        <!-- Stat Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Order</p>
-                <span id="statTotal" class="text-3xl font-black text-slate-900">-</span>
+        <!-- Rekap Status -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Submitted</p>
+                </div>
+                <p id="countSubmitted" class="text-xl font-black text-slate-900">0</p>
             </div>
-            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Avg Durasi</p>
-                <span id="statAvg" class="text-3xl font-black text-indigo-600">-</span>
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-2 h-2 rounded-full bg-sky-500"></div>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Approved</p>
+                </div>
+                <p id="countApproved" class="text-xl font-black text-slate-900">0</p>
             </div>
-            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Sisa Unit</p>
-                <span id="statOutstanding" class="text-3xl font-black text-rose-500">-</span>
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-2 h-2 rounded-full bg-amber-500"></div>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">On Process</p>
+                </div>
+                <p id="countOnProcess" class="text-xl font-black text-slate-900">0</p>
             </div>
-            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Batal</p>
-                <span id="statCancel" class="text-3xl font-black text-slate-400">-</span>
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Completed</p>
+                </div>
+                <p id="countCompleted" class="text-xl font-black text-slate-900">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-2 h-2 rounded-full bg-rose-500"></div>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Canceled</p>
+                </div>
+                <p id="countCanceled" class="text-xl font-black text-slate-900">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-2 h-2 rounded-full bg-red-800"></div>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Rejected</p>
+                </div>
+                <p id="countRejected" class="text-xl font-black text-slate-900">0</p>
             </div>
         </div>
 
-        <!-- Toolbar / Filters -->
-        <div class="bg-white p-5 rounded-3xl border border-slate-100 mb-6 flex flex-wrap items-end gap-4">
-            <div class="flex-1 min-w-[200px] space-y-2">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cari Segala Hal</label>
+        <!-- Priority Section -->
+        <div id="prioritySection" class="hidden mb-10">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="flex h-2 w-2 rounded-full bg-rose-500 animate-pulse"></span>
+                <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Prioritas Pengiriman Terhambat (Durasi Terlama)</h2>
+            </div>
+            <div id="priorityContainer" class="flex gap-4 overflow-x-auto pb-4">
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white p-6 rounded-[32px] border border-slate-100 mb-6 flex flex-wrap items-end gap-4 shadow-sm">
+            <!-- Global Search -->
+            <div class="flex-1 min-w-[280px] space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pencarian</label>
                 <div class="relative">
-                    <input type="text" id="searchBar" placeholder="Cari ID, Kios, Distributor..." class="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="text" id="searchBar" placeholder="Cari Kios atau Nomor Order..." class="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                     <svg class="w-5 h-5 absolute left-4 top-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
             </div>
+
+            <!-- Distributor Filter -->
+            <div class="w-full sm:w-auto min-w-[160px] space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Distributor</label>
+                <select id="filterDistributor" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-xs font-bold text-slate-600 outline-none uppercase">
+                    <option value="ALL">SEMUA DISTRIBUTOR</option>
+                </select>
+            </div>
+
+            <!-- Wilayah Filter -->
+            <div class="w-full sm:w-auto min-w-[160px] space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Wilayah (Kabupaten)</label>
+                <select id="filterWilayah" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-xs font-bold text-slate-600 outline-none uppercase">
+                    <option value="ALL">SEMUA WILAYAH</option>
+                </select>
+            </div>
+
+            <!-- Kecamatan Filter -->
+            <div class="w-full sm:w-auto min-w-[160px] space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kecamatan</label>
+                <select id="filterKecamatan" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-xs font-bold text-slate-600 outline-none uppercase">
+                    <option value="ALL">SEMUA KECAMATAN</option>
+                </select>
+            </div>
             
-            <div class="w-full sm:w-auto space-y-2">
+            <!-- Status Filter -->
+            <div class="w-full sm:w-auto min-w-[140px] space-y-2">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Status</label>
-                <select id="filterStatus" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-xs font-bold text-slate-600 outline-none">
-                    <option value="ALL">SEMUA</option>
+                <select id="filterStatus" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-xs font-bold text-slate-600 outline-none uppercase">
+                    <option value="ALL">SEMUA STATUS</option>
                     <option value="SUBMITTED">SUBMITTED</option>
+                    <option value="APPROVED">APPROVED</option>
+                    <option value="ON PROCESS">ON PROCESS</option>
                     <option value="COMPLETED">COMPLETED</option>
                     <option value="CANCELED">CANCELED</option>
+                    <option value="REJECTED">REJECTED</option>
                 </select>
             </div>
 
-            <div class="w-full sm:w-auto space-y-2">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pilih Kios</label>
-                <select id="filterKios" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-xs font-bold text-slate-600 outline-none">
-                    <option value="ALL">SEMUA KIOS</option>
-                </select>
-            </div>
-
+            <!-- Sort -->
             <div class="w-full sm:w-auto space-y-2">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Urutan</label>
                 <select id="sortMode" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-xs font-bold text-slate-600 outline-none">
                     <option value="LATEST">TERBARU</option>
                     <option value="LONGEST">DURASI TERLAMA</option>
+                    <option value="HIGHEST">HARGA TERTINGGI</option>
                 </select>
             </div>
 
@@ -220,42 +275,49 @@
             </button>
         </div>
 
-        <!-- Tabel Utama -->
+        <!-- Tabel -->
         <div class="table-container">
-            <div class="scroll-wrapper" id="tableWrapper">
+            <div class="scroll-wrapper">
                 <table class="premium-table">
                     <thead>
                         <tr>
                             <th>Nomor Order</th>
-                            <th>Info Kios</th>
+                            <th>Tanggal Order</th>
+                            <th>Kios</th>
                             <th>Distributor</th>
-                            <th>Lokasi</th>
+                            <th>Wilayah</th>
                             <th class="text-center">Durasi</th>
+                            <th class="text-center">Pesan</th>
+                            <th class="text-center">Terima</th>
                             <th class="text-center">Sisa</th>
+                            <th>Total Harga</th>
+                            <th>Pembayaran</th>
                             <th class="text-center">Status</th>
+                            <th>Pembaruan Terakhir</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody"></tbody>
                 </table>
                 
-                <div id="loading" class="py-24 text-center">
-                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Menunggu Import Data...</p>
+                <div id="loadingMsg" class="py-32 text-center">
+                    <div class="inline-block w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Silakan Impor Data Untuk Memulai</p>
                 </div>
-                <div id="noData" class="hidden py-24 text-center">
-                    <p class="text-slate-400 font-bold">Data tidak ditemukan.</p>
+                <div id="noDataMsg" class="hidden py-32 text-center">
+                    <p class="text-slate-400 font-bold">Data tidak ditemukan sesuai filter.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- PDF Modal -->
+    <!-- Modal PDF -->
     <div id="pdfPreviewModal" class="flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-5xl h-[90vh] rounded-[32px] overflow-hidden flex flex-col shadow-2xl">
+        <div class="bg-white w-full max-w-6xl h-[90vh] rounded-[32px] overflow-hidden flex flex-col shadow-2xl">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="font-black text-slate-900">Preview Laporan</h3>
-                <div class="flex gap-2">
-                    <button onclick="closePdfPreview()" class="px-4 py-2 text-xs font-bold text-slate-500">Batal</button>
-                    <button id="btnDownloadFinal" class="bg-indigo-600 text-white px-6 py-2 rounded-xl text-xs font-black">CETAK</button>
+                <h3 class="font-black text-slate-900">Preview Laporan Logistik</h3>
+                <div class="flex gap-3">
+                    <button onclick="closePdfPreview()" class="px-5 py-2 text-xs font-bold text-slate-500 hover:bg-slate-50 rounded-xl transition-colors">Tutup</button>
+                    <button id="btnDownloadFinal" class="bg-indigo-600 text-white px-8 py-2 rounded-xl text-xs font-black hover:bg-indigo-700 shadow-lg shadow-indigo-100">UNDUH PDF</button>
                 </div>
             </div>
             <iframe id="pdfFrame" class="flex-1 w-full border-none"></iframe>
@@ -265,79 +327,134 @@
     <script>
         let masterData = [];
         let displayData = [];
-        let currentPdfBlob = null;
+
+        const formatIDR = (val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
 
         document.getElementById('csvFileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
-            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('loadingMsg').classList.remove('hidden');
 
-            if (file.name.toLowerCase().endsWith('.csv')) {
-                Papa.parse(file, { 
-                    header: true, 
-                    skipEmptyLines: true, 
-                    complete: (results) => processData(results.data) 
-                });
-            } else {
-                const reader = new FileReader();
-                reader.onload = (evt) => {
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                let data = [];
+                if (file.name.endsWith('.csv')) {
+                    const results = Papa.parse(evt.target.result, { header: true, skipEmptyLines: true });
+                    data = results.data;
+                } else {
                     const workbook = XLSX.read(evt.target.result, { type: 'binary' });
-                    const sheetName = workbook.SheetNames[0];
-                    const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-                    processData(data);
-                };
-                reader.readAsBinaryString(file);
-            }
+                    data = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                }
+                processRawData(data);
+            };
+            
+            if (file.name.endsWith('.csv')) reader.readAsText(file);
+            else reader.readAsBinaryString(file);
         });
 
-        function processData(data) {
-            // Mapping data agar sesuai dengan key yang dibutuhkan
-            masterData = data.filter(r => r['Nomor Order']).map(row => ({
-                ...row,
-                // Memastikan field 'Distributor' terbaca dari kolom excel 'Distributor'
-                'Distributor': row['Distributor'] || row['Nama Distributor'] || 'Tidak Diketahui'
-            }));
+        function processRawData(data) {
+            masterData = data.filter(r => r['Nomor Order']).map(row => {
+                const dipesanRaw = row['Total Barang Dipesan'] || row['Total Pesan'] || row['Pesan'] || row['Dipesan'] || 0;
+                const dipesan = parseFloat(dipesanRaw) || 0;
+                
+                const diterimaRaw = row['Total Barang Diterima'] || row['Total Terima'] || row['Terima'] || row['Diterima'] || 0;
+                const diterima = parseFloat(diterimaRaw) || 0;
+                
+                const sisaRaw = row['Sisa Order'] || row['Sisa'] || (dipesan - diterima);
+                const sisa = parseFloat(sisaRaw) || 0;
+                
+                const hargaRaw = row['Total Harga'] || row['Total Nilai'] || row['Total Nilai Order'] || 0;
+                const harga = parseFloat(hargaRaw) || 0;
 
-            if (masterData.length === 0) {
-                alert("Data tidak valid. Pastikan ada kolom 'Nomor Order'.");
-                document.getElementById('loading').classList.add('hidden');
-                return;
-            }
-            
-            // Populate Dynamic Filters
-            const kiosList = [...new Set(masterData.map(r => r['Nama Kios']).filter(Boolean))].sort();
-            const kSel = document.getElementById('filterKios');
-            kSel.innerHTML = '<option value="ALL">SEMUA KIOS</option>';
-            kiosList.forEach(k => kSel.innerHTML += `<option value="${k}">${k}</option>`);
+                return {
+                    'Nomor Order': row['Nomor Order'],
+                    'Tanggal Order': row['Tanggal Order'] || '-',
+                    'Nama Kios': row['Nama Kios'] || '-',
+                    'Kode Kios': row['Kode Kios'] || '-',
+                    'Kode Distributor': row['Kode Distributor'] || '-',
+                    'Nama Distributor': row['Nama Distributor'] || row['Distributor'] || '-',
+                    'Provinsi': row['Provinsi'] || '-',
+                    'Kabupaten': row['Kabupaten/Kota'] || row['Kabupaten'] || '-',
+                    'Kecamatan': row['Kecamatan'] || '-',
+                    'Durasi Order': parseFloat(row['Durasi Order']) || 0,
+                    'Dipesan': dipesan,
+                    'Diterima': diterima,
+                    'Sisa': sisa,
+                    'Harga': harga,
+                    'Pembayaran': row['Tipe Pembayaran'] || '-',
+                    'Status': (row['Status Order'] || row['Status'] || 'SUBMITTED').toUpperCase().trim(),
+                    'Terakhir Diperbarui': row['Terakhir Diperbarui'] || '-'
+                };
+            });
 
+            populateFilterDropdowns();
             displayData = [...masterData];
             document.getElementById('btnExportPDF').classList.remove('hidden');
-            renderUI();
+            applyFilters();
+        }
+
+        function populateFilterDropdowns() {
+            const distSelect = document.getElementById('filterDistributor');
+            const wilSelect = document.getElementById('filterWilayah');
+            const kecSelect = document.getElementById('filterKecamatan');
+            
+            // Ambil Unique Values
+            const distributors = [...new Set(masterData.map(item => item['Nama Distributor']))].sort();
+            const wilayahs = [...new Set(masterData.map(item => item['Kabupaten']))].sort();
+            const kecamatans = [...new Set(masterData.map(item => item['Kecamatan']))].sort();
+
+            // Reset options (pertahankan "SEMUA")
+            distSelect.innerHTML = '<option value="ALL">SEMUA DISTRIBUTOR</option>';
+            wilSelect.innerHTML = '<option value="ALL">SEMUA WILAYAH</option>';
+            kecSelect.innerHTML = '<option value="ALL">SEMUA KECAMATAN</option>';
+
+            distributors.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d;
+                opt.textContent = d.toUpperCase();
+                distSelect.appendChild(opt);
+            });
+
+            wilayahs.forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = w;
+                opt.textContent = w.toUpperCase();
+                wilSelect.appendChild(opt);
+            });
+
+            kecamatans.forEach(k => {
+                const opt = document.createElement('option');
+                opt.value = k;
+                opt.textContent = k.toUpperCase();
+                kecSelect.appendChild(opt);
+            });
         }
 
         function applyFilters() {
-            const sVal = document.getElementById('filterStatus').value;
-            const kVal = document.getElementById('filterKios').value;
-            const sortMode = document.getElementById('sortMode').value;
+            const sStatus = document.getElementById('filterStatus').value;
+            const sDist = document.getElementById('filterDistributor').value;
+            const sWil = document.getElementById('filterWilayah').value;
+            const sKec = document.getElementById('filterKecamatan').value;
             const qVal = document.getElementById('searchBar').value.toLowerCase();
+            const sortVal = document.getElementById('sortMode').value;
 
             let filtered = masterData.filter(r => {
-                const matchStatus = sVal === 'ALL' || r['Status Order'] === sVal;
-                const matchKios = kVal === 'ALL' || r['Nama Kios'] === kVal;
+                const matchStatus = sStatus === 'ALL' || r['Status'] === sStatus;
+                const matchDist = sDist === 'ALL' || r['Nama Distributor'] === sDist;
+                const matchWil = sWil === 'ALL' || r['Kabupaten'] === sWil;
+                const matchKec = sKec === 'ALL' || r['Kecamatan'] === sKec;
+                
                 const matchQuery = !qVal || 
-                    r['Nomor Order']?.toString().toLowerCase().includes(qVal) || 
-                    r['Nama Kios']?.toString().toLowerCase().includes(qVal) ||
-                    r['Distributor']?.toString().toLowerCase().includes(qVal) ||
-                    r['Kecamatan']?.toString().toLowerCase().includes(qVal);
-
-                return matchStatus && matchKios && matchQuery;
+                    r['Nomor Order'].toString().toLowerCase().includes(qVal) || 
+                    r['Nama Kios'].toLowerCase().includes(qVal) ||
+                    r['Nama Distributor'].toLowerCase().includes(qVal);
+                    
+                return matchStatus && matchDist && matchWil && matchKec && matchQuery;
             });
 
-            if (sortMode === 'LONGEST') {
-                filtered.sort((a, b) => (parseFloat(b['Durasi Order']) || 0) - (parseFloat(a['Durasi Order']) || 0));
-            } else {
-                filtered.sort((a, b) => b['Nomor Order'] - a['Nomor Order']);
-            }
+            if (sortVal === 'LONGEST') filtered.sort((a, b) => b['Durasi Order'] - a['Durasi Order']);
+            else if (sortVal === 'HIGHEST') filtered.sort((a, b) => b['Harga'] - a['Harga']);
+            else filtered.sort((a, b) => b['Nomor Order'].toString().localeCompare(a['Nomor Order'].toString()));
 
             displayData = filtered;
             renderUI();
@@ -345,101 +462,121 @@
 
         function renderUI() {
             const tbody = document.getElementById('tableBody');
-            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('loadingMsg').classList.add('hidden');
             tbody.innerHTML = '';
 
             if (displayData.length === 0) {
-                document.getElementById('noData').classList.remove('hidden');
-                updateStats(0, 0, 0, 0);
+                document.getElementById('noDataMsg').classList.remove('hidden');
+                document.getElementById('prioritySection').classList.add('hidden');
+                updateStats(0, 0);
+                updateRekapCounts([]);
                 return;
             }
-            document.getElementById('noData').classList.add('hidden');
+            document.getElementById('noDataMsg').classList.add('hidden');
 
-            let totalDur = 0, totalSisa = 0, totalCancel = 0;
+            let totalNilai = 0;
 
             displayData.forEach(row => {
-                const dur = parseFloat(row['Durasi Order']) || 0;
-                const sisa = parseFloat(row['Sisa Order']) || 0;
-                const status = (row['Status Order'] || 'SUBMITTED').toUpperCase();
-
-                totalDur += dur;
-                if (status === 'CANCELED') totalCancel++;
-                else totalSisa += sisa;
-
-                const durClass = dur > 2 ? 'dur-red' : (dur >= 1 ? 'dur-orange' : 'dur-green');
+                totalNilai += row['Harga'];
+                const statusClass = `status-${row['Status'].toLowerCase().replace(/\s/g, '')}`;
                 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><span class="order-id">#${row['Nomor Order']}</span></td>
+                    <td><span class="order-id">${row['Nomor Order']}</span></td>
+                    <td class="text-slate-500 font-medium">${row['Tanggal Order']}</td>
                     <td>
                         <div class="flex flex-col">
-                            <span class="font-extrabold text-slate-800">${row['Nama Kios']}</span>
-                            <span class="text-[10px] text-indigo-500 font-bold">${row['Kode Kios'] || '-'}</span>
+                            <span class="font-bold text-slate-800">${row['Nama Kios']}</span>
+                            <span class="text-[9px] font-black text-indigo-400 uppercase tracking-tighter">${row['Kode Kios']}</span>
                         </div>
                     </td>
                     <td>
                         <div class="flex flex-col">
-                            <span class="font-bold text-slate-700 text-xs">${row['Distributor']}</span>
+                            <span class="font-semibold text-slate-700">${row['Nama Distributor']}</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase">${row['Kode Distributor']}</span>
                         </div>
                     </td>
                     <td>
                         <div class="flex flex-col">
-                            <span class="font-bold text-slate-700 text-xs">${row['Kecamatan']}</span>
-                            <span class="text-[9px] text-slate-400 uppercase font-black">${row['Provinsi'] || ''}</span>
+                            <span class="text-xs font-bold text-slate-700">${row['Kecamatan']}</span>
+                            <span class="text-[9px] font-black text-slate-400 uppercase">${row['Kabupaten']}</span>
                         </div>
                     </td>
-                    <td class="text-center"><div class="flex justify-center"><div class="durasi-circle ${durClass}">${dur}d</div></div></td>
-                    <td class="text-center font-bold text-rose-500">${row['Sisa Order'] || 0}</td>
-                    <td class="text-center"><span class="status-pill status-${status.toLowerCase()}">${status}</span></td>
+                    <td class="text-center font-black ${row['Durasi Order'] > 2 ? 'text-rose-500' : 'text-slate-400'}">${row['Durasi Order']}d</td>
+                    <td class="text-center font-bold text-slate-600">${row['Dipesan']}</td>
+                    <td class="text-center font-bold text-indigo-500">${row['Diterima']}</td>
+                    <td class="text-center font-bold ${row['Sisa'] > 0 ? 'text-rose-500' : 'text-emerald-500'}">${row['Sisa']}</td>
+                    <td class="currency font-bold">${formatIDR(row['Harga'])}</td>
+                    <td class="text-[10px] font-black text-slate-500 uppercase">${row['Pembayaran']}</td>
+                    <td class="text-center"><span class="status-pill ${statusClass}">${row['Status']}</span></td>
+                    <td class="text-[10px] text-slate-400 font-medium">${row['Terakhir Diperbarui']}</td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            updateStats(displayData.length, (totalDur / displayData.length).toFixed(1), totalSisa, totalCancel);
+            updateStats(displayData.length, totalNilai);
+            updateRekapCounts(displayData);
             renderPriorityCards();
+        }
+
+        function updateRekapCounts(data) {
+            const counts = { 'SUBMITTED': 0, 'APPROVED': 0, 'ON PROCESS': 0, 'COMPLETED': 0, 'CANCELED': 0, 'REJECTED': 0 };
+            data.forEach(item => { if (counts.hasOwnProperty(item.Status)) counts[item.Status]++; });
+            document.getElementById('countSubmitted').innerText = counts['SUBMITTED'].toLocaleString('id-ID');
+            document.getElementById('countApproved').innerText = counts['APPROVED'].toLocaleString('id-ID');
+            document.getElementById('countOnProcess').innerText = counts['ON PROCESS'].toLocaleString('id-ID');
+            document.getElementById('countCompleted').innerText = counts['COMPLETED'].toLocaleString('id-ID');
+            document.getElementById('countCanceled').innerText = counts['CANCELED'].toLocaleString('id-ID');
+            document.getElementById('countRejected').innerText = counts['REJECTED'].toLocaleString('id-ID');
         }
 
         function renderPriorityCards() {
             const container = document.getElementById('priorityContainer');
-            const priorityView = document.getElementById('priorityView');
+            const section = document.getElementById('prioritySection');
             const top5 = [...masterData]
-                .filter(r => r['Status Order'] !== 'CANCELED' && r['Status Order'] !== 'COMPLETED')
-                .sort((a,b) => (parseFloat(b['Durasi Order']) || 0) - (parseFloat(a['Durasi Order']) || 0))
-                .slice(0, 5);
+                .filter(r => !['COMPLETED', 'CANCELED', 'REJECTED'].includes(r['Status']) && r['Sisa'] > 0)
+                .sort((a, b) => b['Durasi Order'] - a['Durasi Order']).slice(0, 5);
 
             if (top5.length > 0) {
-                priorityView.classList.remove('hidden');
+                section.classList.remove('hidden');
                 container.innerHTML = '';
-                top5.forEach(row => {
+                top5.forEach(item => {
                     const card = document.createElement('div');
-                    card.className = 'top-priority-card flex-shrink-0';
+                    card.className = 'priority-card flex-shrink-0';
                     card.innerHTML = `
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">#${row['Nomor Order']}</span>
-                            <span class="px-1.5 py-0.5 bg-rose-50 text-rose-600 rounded-md text-[9px] font-black">${row['Durasi Order']}d</span>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-[10px] font-bold text-slate-300">#${item['Nomor Order']}</span>
+                            <div class="flex items-center gap-1 px-2 py-0.5 bg-rose-50 rounded-lg border border-rose-100">
+                                <span class="text-[10px] font-black text-rose-600">${item['Durasi Order']} Hari</span>
+                            </div>
                         </div>
-                        <h4 class="font-extrabold text-slate-800 text-xs truncate mb-0.5">${row['Nama Kios']}</h4>
-                        <p class="text-[9px] text-slate-400 font-bold mb-2 uppercase truncate">${row['Distributor']}</p>
-                        <div class="flex items-baseline gap-1.5">
-                            <span class="text-lg font-black text-rose-500 leading-none">${row['Sisa Order']}</span>
-                            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Sisa Unit</span>
+                        <h3 class="font-extrabold text-slate-800 text-sm truncate mb-1">${item['Nama Kios']}</h3>
+                        <p class="text-[10px] text-slate-400 font-bold mb-4 truncate uppercase tracking-tighter">${item['Nama Distributor']}</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black text-slate-300 uppercase leading-none mb-1">Sisa Unit</span>
+                                <span class="text-2xl font-black text-rose-500 leading-none">${item['Sisa']}</span>
+                            </div>
+                            <div class="bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest">${item['Kecamatan']}</span>
+                            </div>
                         </div>
                     `;
                     container.appendChild(card);
                 });
-            } else { priorityView.classList.add('hidden'); }
+            } else { section.classList.add('hidden'); }
         }
 
-        function updateStats(total, avg, sisa, cancel) {
-            document.getElementById('statTotal').innerText = total;
-            document.getElementById('statAvg').innerText = isNaN(avg) ? 0 : avg;
-            document.getElementById('statOutstanding').innerText = sisa;
-            document.getElementById('statCancel').innerText = cancel;
+        function updateStats(transaksiCount, totalNilai) {
+            document.getElementById('statCount').innerText = transaksiCount.toLocaleString('id-ID');
+            document.getElementById('statTotalNilai').innerText = formatIDR(totalNilai);
         }
 
         function resetFilters() {
             document.getElementById('filterStatus').value = 'ALL';
-            document.getElementById('filterKios').value = 'ALL';
+            document.getElementById('filterDistributor').value = 'ALL';
+            document.getElementById('filterWilayah').value = 'ALL';
+            document.getElementById('filterKecamatan').value = 'ALL';
             document.getElementById('sortMode').value = 'LATEST';
             document.getElementById('searchBar').value = '';
             applyFilters();
@@ -449,35 +586,29 @@
 
         async function openPdfPreview() {
             if (displayData.length === 0) return;
-            const pdfData = [...displayData].sort((a, b) => (parseFloat(b['Durasi Order']) || 0) - (parseFloat(a['Durasi Order']) || 0));
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('l', 'mm', 'a4'); 
-            doc.setFontSize(14);
-            doc.text("LAPORAN STATUS MONITORING ORDER (URUT DURASI TERLAMA)", 14, 15);
+            const doc = new jsPDF('l', 'mm', 'a4');
+            doc.setFontSize(16);
+            doc.text("LAPORAN MONITORING ORDER PPTS", 14, 15);
             doc.autoTable({
-                startY: 25,
-                head: [["ID Order", "Nama Kios", "Distributor", "Lokasi", "Durasi", "Sisa", "Status"]],
-                body: pdfData.map(r => [
-                    r['Nomor Order'], r['Nama Kios'], r['Distributor'], r['Kecamatan'], 
-                    r['Durasi Order'] + "d", r['Sisa Order'], r['Status Order']
+                startY: 30,
+                head: [["ID Order", "Kios", "Distributor", "Lokasi", "Pesan", "Terima", "Sisa", "Nilai", "Status"]],
+                body: displayData.map(r => [
+                    r['Nomor Order'], r['Nama Kios'], r['Nama Distributor'], 
+                    r['Kecamatan'], r['Dipesan'], r['Diterima'], r['Sisa'], formatIDR(r['Harga']), r['Status']
                 ]),
-                theme: 'striped',
-                headStyles: { fillColor: [79, 70, 229] },
-                styles: { fontSize: 8 }
+                theme: 'grid',
+                headStyles: { fillColor: [79, 70, 229], fontSize: 8 },
+                styles: { fontSize: 7 }
             });
-            const pdfBlob = doc.output('blob');
-            currentPdfBlob = pdfBlob;
-            document.getElementById('pdfFrame').src = URL.createObjectURL(pdfBlob);
+            const blob = doc.output('blob');
+            document.getElementById('pdfFrame').src = URL.createObjectURL(blob);
             document.getElementById('pdfPreviewModal').style.display = 'flex';
-            document.getElementById('btnDownloadFinal').onclick = () => {
-                doc.save(`Laporan_Monitoring_${new Date().getTime()}.pdf`);
-                closePdfPreview();
-            };
+            document.getElementById('btnDownloadFinal').onclick = () => doc.save(`Monitoring_Order_PPTS_${Date.now()}.pdf`);
         }
 
         function closePdfPreview() {
             document.getElementById('pdfPreviewModal').style.display = 'none';
-            if (currentPdfBlob) URL.revokeObjectURL(currentPdfBlob);
         }
     </script>
 </body>
