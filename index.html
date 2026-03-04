@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Monitoring Order Kios Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .table-container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            border: 1px solid #f1f5f9;
+        }
+
+        .scroll-wrapper {
+            max-height: 600px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .premium-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .premium-table thead th {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 20;
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .premium-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .premium-table td {
+            padding: 18px 20px;
+            font-size: 13px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .status-pill {
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 10px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .status-submitted { background: #eef2ff; color: #4f46e5; }
+        .status-completed { background: #ecfdf5; color: #059669; }
+        .status-canceled { background: #fff1f2; color: #e11d48; }
+
+        .durasi-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 12px;
+        }
+        
+        .dur-red { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .dur-orange { background: #ffedd5; color: #ea580c; border: 1px solid #fed7aa; }
+        .dur-green { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+
+        .order-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #0f172a; }
+
+        /* Perkecil tampilan card view */
+        .top-priority-card {
+            min-width: 220px;
+            background: white;
+            border: 1px solid #f1f5f9;
+            border-radius: 16px;
+            padding: 14px;
+            transition: all 0.3s ease;
+        }
+        .top-priority-card:hover { transform: translateY(-3px); border-color: #dc2626; box-shadow: 0 8px 12px -3px rgba(220, 38, 38, 0.08); }
+
+        #pdfPreviewModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-[1600px] mx-auto">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="bg-indigo-600 p-2 rounded-lg">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                    </div>
+                    <h1 class="text-2xl font-black tracking-tight text-slate-900">MONITORING <span class="text-indigo-600">ORDER</span></h1>
+                </div>
+                <p class="text-slate-500 text-sm font-medium">Monitoring Real-time Pesanan & Distribusi Kios</p>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button id="btnExportPDF" onclick="openPdfPreview()" class="hidden group bg-white border border-slate-200 hover:border-indigo-200 text-slate-700 px-5 py-3 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm">
+                    <svg class="w-4 h-4 text-rose-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 16l-4-4h3V4h2v8h3l-4 4zm9-8v10c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V8c0-1.1.9-2 2-2h4v2H5v10h14V8h-4V6h4c1.1 0 2 .9 2 2z"/></svg>
+                    CETAK PDF
+                </button>
+                <label class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-2xl text-xs font-black cursor-pointer transition-all flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    IMPORT DATA
+                    <input type="file" id="csvFileInput" accept=".csv, .xlsx, .xls" class="hidden">
+                </label>
+            </div>
+        </header>
+
+        <!-- Top 5 Priority View -->
+        <div id="priorityView" class="hidden mb-10">
+            <h2 class="text-[9px] font-black text-rose-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+                <span class="flex h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                Top 5 Durasi Terlama (Menunggu)
+            </h2>
+            <div id="priorityContainer" class="flex gap-3 overflow-x-auto pb-4">
+                <!-- Priority cards inserted here -->
+            </div>
+        </div>
+
+        <!-- Stat Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Order</p>
+                <span id="statTotal" class="text-3xl font-black text-slate-900">-</span>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Avg Durasi</p>
+                <span id="statAvg" class="text-3xl font-black text-indigo-600">-</span>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Sisa Unit</p>
+                <span id="statOutstanding" class="text-3xl font-black text-rose-500">-</span>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Batal</p>
+                <span id="statCancel" class="text-3xl font-black text-slate-400">-</span>
+            </div>
+        </div>
+
+        <!-- Toolbar / Filters -->
+        <div class="bg-white p-5 rounded-3xl border border-slate-100 mb-6 flex flex-wrap items-end gap-4">
+            <div class="flex-1 min-w-[200px] space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cari Segala Hal</label>
+                <div class="relative">
+                    <input type="text" id="searchBar" placeholder="Cari ID, Kios, atau Lokasi..." class="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <svg class="w-5 h-5 absolute left-4 top-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+            </div>
+            
+            <div class="w-full sm:w-auto space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Status</label>
+                <select id="filterStatus" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-xs font-bold text-slate-600 outline-none">
+                    <option value="ALL">SEMUA</option>
+                    <option value="SUBMITTED">SUBMITTED</option>
+                    <option value="COMPLETED">COMPLETED</option>
+                    <option value="CANCELED">CANCELED</option>
+                </select>
+            </div>
+
+            <div class="w-full sm:w-auto space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pilih Kios</label>
+                <select id="filterKios" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-xs font-bold text-slate-600 outline-none">
+                    <option value="ALL">SEMUA KIOS</option>
+                </select>
+            </div>
+
+            <div class="w-full sm:w-auto space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kecamatan</label>
+                <select id="filterKecamatan" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-xs font-bold text-slate-600 outline-none">
+                    <option value="ALL">SEMUA KECAMATAN</option>
+                </select>
+            </div>
+
+            <div class="w-full sm:w-auto space-y-2">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Urutan</label>
+                <select id="sortMode" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-xs font-bold text-slate-600 outline-none">
+                    <option value="LATEST">TERBARU</option>
+                    <option value="LONGEST">DURASI TERLAMA</option>
+                </select>
+            </div>
+
+            <button onclick="resetFilters()" class="p-3 bg-slate-50 rounded-2xl text-slate-400 hover:text-rose-500 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </button>
+        </div>
+
+        <!-- Tabel Utama -->
+        <div class="table-container">
+            <div class="scroll-wrapper" id="tableWrapper">
+                <table class="premium-table">
+                    <thead>
+                        <tr>
+                            <th>Nomor Order</th>
+                            <th>Info Kios</th>
+                            <th>Lokasi</th>
+                            <th class="text-center">Durasi</th>
+                            <th class="text-center">Pesan</th>
+                            <th class="text-center">Terima</th>
+                            <th class="text-center">Sisa</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+                
+                <div id="loading" class="py-24 text-center">
+                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Menunggu Import Data...</p>
+                </div>
+                <div id="noData" class="hidden py-24 text-center">
+                    <p class="text-slate-400 font-bold">Data tidak ditemukan.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Modal -->
+    <div id="pdfPreviewModal" class="flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-5xl h-[90vh] rounded-[32px] overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="font-black text-slate-900">Preview Laporan</h3>
+                <div class="flex gap-2">
+                    <button onclick="closePdfPreview()" class="px-4 py-2 text-xs font-bold text-slate-500">Batal</button>
+                    <button id="btnDownloadFinal" class="bg-indigo-600 text-white px-6 py-2 rounded-xl text-xs font-black">CETAK</button>
+                </div>
+            </div>
+            <iframe id="pdfFrame" class="flex-1 w-full border-none"></iframe>
+        </div>
+    </div>
+
+    <script>
+        let masterData = [];
+        let displayData = [];
+        let currentPdfBlob = null;
+
+        document.getElementById('csvFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            document.getElementById('loading').classList.remove('hidden');
+
+            if (file.name.toLowerCase().endsWith('.csv')) {
+                Papa.parse(file, { header: true, skipEmptyLines: true, complete: (results) => processData(results.data) });
+            } else {
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    const data = XLSX.utils.sheet_to_json(XLSX.read(evt.target.result, { type: 'binary' }).Sheets[XLSX.read(evt.target.result, { type: 'binary' }).SheetNames[0]]);
+                    processData(data);
+                };
+                reader.readAsBinaryString(file);
+            }
+        });
+
+        function processData(data) {
+            masterData = data.filter(r => r['Nomor Order']);
+            if (masterData.length === 0) {
+                alert("Data tidak valid.");
+                return;
+            }
+            
+            // Populate Dynamic Filters
+            const kiosList = [...new Set(masterData.map(r => r['Nama Kios']).filter(Boolean))].sort();
+            const kecList = [...new Set(masterData.map(r => r['Kecamatan']).filter(Boolean))].sort();
+
+            const kSel = document.getElementById('filterKios');
+            const kcSel = document.getElementById('filterKecamatan');
+
+            kSel.innerHTML = '<option value="ALL">SEMUA KIOS</option>';
+            kcSel.innerHTML = '<option value="ALL">SEMUA KECAMATAN</option>';
+
+            kiosList.forEach(k => kSel.innerHTML += `<option value="${k}">${k}</option>`);
+            kecList.forEach(kc => kcSel.innerHTML += `<option value="${kc}">${kc}</option>`);
+
+            displayData = [...masterData];
+            document.getElementById('btnExportPDF').classList.remove('hidden');
+            renderUI();
+        }
+
+        function applyFilters() {
+            const sVal = document.getElementById('filterStatus').value;
+            const kVal = document.getElementById('filterKios').value;
+            const kcVal = document.getElementById('filterKecamatan').value;
+            const sortMode = document.getElementById('sortMode').value;
+            const qVal = document.getElementById('searchBar').value.toLowerCase();
+
+            let filtered = masterData.filter(r => {
+                const matchStatus = sVal === 'ALL' || r['Status Order'] === sVal;
+                const matchKios = kVal === 'ALL' || r['Nama Kios'] === kVal;
+                const matchKec = kcVal === 'ALL' || r['Kecamatan'] === kcVal;
+                const matchQuery = !qVal || 
+                    r['Nomor Order']?.toString().toLowerCase().includes(qVal) || 
+                    r['Nama Kios']?.toString().toLowerCase().includes(qVal) ||
+                    r['Kecamatan']?.toString().toLowerCase().includes(qVal);
+
+                return matchStatus && matchKios && matchKec && matchQuery;
+            });
+
+            // Sorting Logic
+            if (sortMode === 'LONGEST') {
+                filtered.sort((a, b) => (parseFloat(b['Durasi Order']) || 0) - (parseFloat(a['Durasi Order']) || 0));
+            } else {
+                // Default sort (latest id/original order)
+                filtered.sort((a, b) => b['Nomor Order'] - a['Nomor Order']);
+            }
+
+            displayData = filtered;
+            renderUI();
+        }
+
+        function renderUI() {
+            const tbody = document.getElementById('tableBody');
+            document.getElementById('loading').classList.add('hidden');
+            tbody.innerHTML = '';
+
+            if (displayData.length === 0) {
+                document.getElementById('noData').classList.remove('hidden');
+                updateStats(0, 0, 0, 0);
+                return;
+            }
+            document.getElementById('noData').classList.add('hidden');
+
+            let totalDur = 0, totalSisa = 0, totalCancel = 0;
+
+            displayData.forEach(row => {
+                const dur = parseFloat(row['Durasi Order']) || 0;
+                const sisa = parseFloat(row['Sisa Order']) || 0;
+                const status = (row['Status Order'] || 'SUBMITTED').toUpperCase();
+
+                totalDur += dur;
+                if (status === 'CANCELED') totalCancel++;
+                else totalSisa += sisa;
+
+                const durClass = dur > 2 ? 'dur-red' : (dur >= 1 ? 'dur-orange' : 'dur-green');
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="order-id">#${row['Nomor Order']}</span></td>
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="font-extrabold text-slate-800">${row['Nama Kios']}</span>
+                            <span class="text-[10px] text-indigo-500 font-bold">${row['Kode Kios'] || '-'}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-700">${row['Kecamatan']}</span>
+                            <span class="text-[9px] text-slate-400 uppercase font-black">${row['Provinsi']}</span>
+                        </div>
+                    </td>
+                    <td class="text-center"><div class="flex justify-center"><div class="durasi-circle ${durClass}">${dur}d</div></div></td>
+                    <td class="text-center font-bold text-slate-600">${row['Total Barang Dipesan'] || 0}</td>
+                    <td class="text-center font-bold text-indigo-600">${row['Total Barang Diterima'] || 0}</td>
+                    <td class="text-center font-bold text-rose-500">${row['Sisa Order'] || 0}</td>
+                    <td class="text-center"><span class="status-pill status-${status.toLowerCase()}">${status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateStats(displayData.length, (totalDur / displayData.length).toFixed(1), totalSisa, totalCancel);
+            renderPriorityCards();
+        }
+
+        function renderPriorityCards() {
+            const container = document.getElementById('priorityContainer');
+            const priorityView = document.getElementById('priorityView');
+            
+            // Ambil 5 teratas yang belum selesai/batal urut durasi terlama
+            const top5 = [...masterData]
+                .filter(r => r['Status Order'] !== 'CANCELED' && r['Status Order'] !== 'COMPLETED')
+                .sort((a,b) => (parseFloat(b['Durasi Order']) || 0) - (parseFloat(a['Durasi Order']) || 0))
+                .slice(0, 5);
+
+            if (top5.length > 0) {
+                priorityView.classList.remove('hidden');
+                container.innerHTML = '';
+                top5.forEach(row => {
+                    const card = document.createElement('div');
+                    card.className = 'top-priority-card flex-shrink-0';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">#${row['Nomor Order']}</span>
+                            <span class="px-1.5 py-0.5 bg-rose-50 text-rose-600 rounded-md text-[9px] font-black">${row['Durasi Order']}d</span>
+                        </div>
+                        <h4 class="font-extrabold text-slate-800 text-xs truncate mb-0.5">${row['Nama Kios']}</h4>
+                        <p class="text-[9px] text-slate-400 font-bold mb-2 uppercase truncate">${row['Kecamatan']}</p>
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-lg font-black text-rose-500 leading-none">${row['Sisa Order']}</span>
+                            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Sisa Unit</span>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } else { priorityView.classList.add('hidden'); }
+        }
+
+        function updateStats(total, avg, sisa, cancel) {
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statAvg').innerText = isNaN(avg) ? 0 : avg;
+            document.getElementById('statOutstanding').innerText = sisa;
+            document.getElementById('statCancel').innerText = cancel;
+        }
+
+        function resetFilters() {
+            document.getElementById('filterStatus').value = 'ALL';
+            document.getElementById('filterKios').value = 'ALL';
+            document.getElementById('filterKecamatan').value = 'ALL';
+            document.getElementById('sortMode').value = 'LATEST';
+            document.getElementById('searchBar').value = '';
+            applyFilters();
+        }
+
+        document.getElementById('searchBar').addEventListener('input', applyFilters);
+
+        async function openPdfPreview() {
+            if (displayData.length === 0) return;
+
+            // Selalu cetak dengan urutan durasi terlama di PDF sesuai permintaan
+            const pdfData = [...displayData].sort((a, b) => (parseFloat(b['Durasi Order']) || 0) - (parseFloat(a['Durasi Order']) || 0));
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('l', 'mm', 'a4'); 
+            doc.setFontSize(14);
+            doc.text("LAPORAN STATUS MONITORING ORDER", 14, 15);
+            doc.autoTable({
+                startY: 25,
+                head: [["ID Order", "Nama Kios", "Kecamatan", "Durasi", "Pesan", "Terima", "Sisa", "Status"]],
+                body: pdfData.map(r => [
+                    r['Nomor Order'], r['Nama Kios'], r['Kecamatan'], r['Durasi Order'] + "d", 
+                    r['Total Barang Dipesan'], r['Total Barang Diterima'], r['Sisa Order'], r['Status Order']
+                ]),
+                theme: 'striped',
+                headStyles: { fillColor: [79, 70, 229] },
+                styles: { fontSize: 8 }
+            });
+            const pdfBlob = doc.output('blob');
+            currentPdfBlob = pdfBlob;
+            document.getElementById('pdfFrame').src = URL.createObjectURL(pdfBlob);
+            document.getElementById('pdfPreviewModal').style.display = 'flex';
+            document.getElementById('btnDownloadFinal').onclick = () => {
+                doc.save(`Laporan_Monitoring_${new Date().getTime()}.pdf`);
+                closePdfPreview();
+            };
+        }
+
+        function closePdfPreview() {
+            document.getElementById('pdfPreviewModal').style.display = 'none';
+            if (currentPdfBlob) URL.revokeObjectURL(currentPdfBlob);
+        }
+    </script>
+</body>
+</html>
