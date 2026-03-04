@@ -101,7 +101,6 @@
 
         .order-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #0f172a; }
 
-        /* Perkecil tampilan card view */
         .top-priority-card {
             min-width: 220px;
             background: white;
@@ -186,7 +185,7 @@
             <div class="flex-1 min-w-[200px] space-y-2">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cari Segala Hal</label>
                 <div class="relative">
-                    <input type="text" id="searchBar" placeholder="Cari ID, Kios, atau Lokasi..." class="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <input type="text" id="searchBar" placeholder="Cari ID, Kios, Distributor..." class="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                     <svg class="w-5 h-5 absolute left-4 top-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
             </div>
@@ -205,13 +204,6 @@
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Pilih Kios</label>
                 <select id="filterKios" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-xs font-bold text-slate-600 outline-none">
                     <option value="ALL">SEMUA KIOS</option>
-                </select>
-            </div>
-
-            <div class="w-full sm:w-auto space-y-2">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Kecamatan</label>
-                <select id="filterKecamatan" onchange="applyFilters()" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-xs font-bold text-slate-600 outline-none">
-                    <option value="ALL">SEMUA KECAMATAN</option>
                 </select>
             </div>
 
@@ -236,10 +228,9 @@
                         <tr>
                             <th>Nomor Order</th>
                             <th>Info Kios</th>
+                            <th>Distributor</th>
                             <th>Lokasi</th>
                             <th class="text-center">Durasi</th>
-                            <th class="text-center">Pesan</th>
-                            <th class="text-center">Terima</th>
                             <th class="text-center">Sisa</th>
                             <th class="text-center">Status</th>
                         </tr>
@@ -282,11 +273,17 @@
             document.getElementById('loading').classList.remove('hidden');
 
             if (file.name.toLowerCase().endsWith('.csv')) {
-                Papa.parse(file, { header: true, skipEmptyLines: true, complete: (results) => processData(results.data) });
+                Papa.parse(file, { 
+                    header: true, 
+                    skipEmptyLines: true, 
+                    complete: (results) => processData(results.data) 
+                });
             } else {
                 const reader = new FileReader();
                 reader.onload = (evt) => {
-                    const data = XLSX.utils.sheet_to_json(XLSX.read(evt.target.result, { type: 'binary' }).Sheets[XLSX.read(evt.target.result, { type: 'binary' }).SheetNames[0]]);
+                    const workbook = XLSX.read(evt.target.result, { type: 'binary' });
+                    const sheetName = workbook.SheetNames[0];
+                    const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
                     processData(data);
                 };
                 reader.readAsBinaryString(file);
@@ -294,24 +291,24 @@
         });
 
         function processData(data) {
-            masterData = data.filter(r => r['Nomor Order']);
+            // Mapping data agar sesuai dengan key yang dibutuhkan
+            masterData = data.filter(r => r['Nomor Order']).map(row => ({
+                ...row,
+                // Memastikan field 'Distributor' terbaca dari kolom excel 'Distributor'
+                'Distributor': row['Distributor'] || row['Nama Distributor'] || 'Tidak Diketahui'
+            }));
+
             if (masterData.length === 0) {
-                alert("Data tidak valid.");
+                alert("Data tidak valid. Pastikan ada kolom 'Nomor Order'.");
+                document.getElementById('loading').classList.add('hidden');
                 return;
             }
             
             // Populate Dynamic Filters
             const kiosList = [...new Set(masterData.map(r => r['Nama Kios']).filter(Boolean))].sort();
-            const kecList = [...new Set(masterData.map(r => r['Kecamatan']).filter(Boolean))].sort();
-
             const kSel = document.getElementById('filterKios');
-            const kcSel = document.getElementById('filterKecamatan');
-
             kSel.innerHTML = '<option value="ALL">SEMUA KIOS</option>';
-            kcSel.innerHTML = '<option value="ALL">SEMUA KECAMATAN</option>';
-
             kiosList.forEach(k => kSel.innerHTML += `<option value="${k}">${k}</option>`);
-            kecList.forEach(kc => kcSel.innerHTML += `<option value="${kc}">${kc}</option>`);
 
             displayData = [...masterData];
             document.getElementById('btnExportPDF').classList.remove('hidden');
@@ -321,27 +318,24 @@
         function applyFilters() {
             const sVal = document.getElementById('filterStatus').value;
             const kVal = document.getElementById('filterKios').value;
-            const kcVal = document.getElementById('filterKecamatan').value;
             const sortMode = document.getElementById('sortMode').value;
             const qVal = document.getElementById('searchBar').value.toLowerCase();
 
             let filtered = masterData.filter(r => {
                 const matchStatus = sVal === 'ALL' || r['Status Order'] === sVal;
                 const matchKios = kVal === 'ALL' || r['Nama Kios'] === kVal;
-                const matchKec = kcVal === 'ALL' || r['Kecamatan'] === kcVal;
                 const matchQuery = !qVal || 
                     r['Nomor Order']?.toString().toLowerCase().includes(qVal) || 
                     r['Nama Kios']?.toString().toLowerCase().includes(qVal) ||
+                    r['Distributor']?.toString().toLowerCase().includes(qVal) ||
                     r['Kecamatan']?.toString().toLowerCase().includes(qVal);
 
-                return matchStatus && matchKios && matchKec && matchQuery;
+                return matchStatus && matchKios && matchQuery;
             });
 
-            // Sorting Logic
             if (sortMode === 'LONGEST') {
                 filtered.sort((a, b) => (parseFloat(b['Durasi Order']) || 0) - (parseFloat(a['Durasi Order']) || 0));
             } else {
-                // Default sort (latest id/original order)
                 filtered.sort((a, b) => b['Nomor Order'] - a['Nomor Order']);
             }
 
@@ -385,13 +379,16 @@
                     </td>
                     <td>
                         <div class="flex flex-col">
-                            <span class="font-bold text-slate-700">${row['Kecamatan']}</span>
-                            <span class="text-[9px] text-slate-400 uppercase font-black">${row['Provinsi']}</span>
+                            <span class="font-bold text-slate-700 text-xs">${row['Distributor']}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-700 text-xs">${row['Kecamatan']}</span>
+                            <span class="text-[9px] text-slate-400 uppercase font-black">${row['Provinsi'] || ''}</span>
                         </div>
                     </td>
                     <td class="text-center"><div class="flex justify-center"><div class="durasi-circle ${durClass}">${dur}d</div></div></td>
-                    <td class="text-center font-bold text-slate-600">${row['Total Barang Dipesan'] || 0}</td>
-                    <td class="text-center font-bold text-indigo-600">${row['Total Barang Diterima'] || 0}</td>
                     <td class="text-center font-bold text-rose-500">${row['Sisa Order'] || 0}</td>
                     <td class="text-center"><span class="status-pill status-${status.toLowerCase()}">${status}</span></td>
                 `;
@@ -405,8 +402,6 @@
         function renderPriorityCards() {
             const container = document.getElementById('priorityContainer');
             const priorityView = document.getElementById('priorityView');
-            
-            // Ambil 5 teratas yang belum selesai/batal urut durasi terlama
             const top5 = [...masterData]
                 .filter(r => r['Status Order'] !== 'CANCELED' && r['Status Order'] !== 'COMPLETED')
                 .sort((a,b) => (parseFloat(b['Durasi Order']) || 0) - (parseFloat(a['Durasi Order']) || 0))
@@ -424,7 +419,7 @@
                             <span class="px-1.5 py-0.5 bg-rose-50 text-rose-600 rounded-md text-[9px] font-black">${row['Durasi Order']}d</span>
                         </div>
                         <h4 class="font-extrabold text-slate-800 text-xs truncate mb-0.5">${row['Nama Kios']}</h4>
-                        <p class="text-[9px] text-slate-400 font-bold mb-2 uppercase truncate">${row['Kecamatan']}</p>
+                        <p class="text-[9px] text-slate-400 font-bold mb-2 uppercase truncate">${row['Distributor']}</p>
                         <div class="flex items-baseline gap-1.5">
                             <span class="text-lg font-black text-rose-500 leading-none">${row['Sisa Order']}</span>
                             <span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Sisa Unit</span>
@@ -445,7 +440,6 @@
         function resetFilters() {
             document.getElementById('filterStatus').value = 'ALL';
             document.getElementById('filterKios').value = 'ALL';
-            document.getElementById('filterKecamatan').value = 'ALL';
             document.getElementById('sortMode').value = 'LATEST';
             document.getElementById('searchBar').value = '';
             applyFilters();
@@ -455,20 +449,17 @@
 
         async function openPdfPreview() {
             if (displayData.length === 0) return;
-
-            // Selalu cetak dengan urutan durasi terlama di PDF sesuai permintaan
             const pdfData = [...displayData].sort((a, b) => (parseFloat(b['Durasi Order']) || 0) - (parseFloat(a['Durasi Order']) || 0));
-
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('l', 'mm', 'a4'); 
             doc.setFontSize(14);
-            doc.text("LAPORAN STATUS MONITORING ORDER", 14, 15);
+            doc.text("LAPORAN STATUS MONITORING ORDER (URUT DURASI TERLAMA)", 14, 15);
             doc.autoTable({
                 startY: 25,
-                head: [["ID Order", "Nama Kios", "Kecamatan", "Durasi", "Pesan", "Terima", "Sisa", "Status"]],
+                head: [["ID Order", "Nama Kios", "Distributor", "Lokasi", "Durasi", "Sisa", "Status"]],
                 body: pdfData.map(r => [
-                    r['Nomor Order'], r['Nama Kios'], r['Kecamatan'], r['Durasi Order'] + "d", 
-                    r['Total Barang Dipesan'], r['Total Barang Diterima'], r['Sisa Order'], r['Status Order']
+                    r['Nomor Order'], r['Nama Kios'], r['Distributor'], r['Kecamatan'], 
+                    r['Durasi Order'] + "d", r['Sisa Order'], r['Status Order']
                 ]),
                 theme: 'striped',
                 headStyles: { fillColor: [79, 70, 229] },
