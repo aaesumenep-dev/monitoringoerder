@@ -398,12 +398,10 @@
             const wilSelect = document.getElementById('filterWilayah');
             const kecSelect = document.getElementById('filterKecamatan');
             
-            // Ambil Unique Values
             const distributors = [...new Set(masterData.map(item => item['Nama Distributor']))].sort();
             const wilayahs = [...new Set(masterData.map(item => item['Kabupaten']))].sort();
             const kecamatans = [...new Set(masterData.map(item => item['Kecamatan']))].sort();
 
-            // Reset options (pertahankan "SEMUA")
             distSelect.innerHTML = '<option value="ALL">SEMUA DISTRIBUTOR</option>';
             wilSelect.innerHTML = '<option value="ALL">SEMUA WILAYAH</option>';
             kecSelect.innerHTML = '<option value="ALL">SEMUA KECAMATAN</option>';
@@ -592,10 +590,10 @@
             doc.text("LAPORAN MONITORING ORDER PPTS", 14, 15);
             doc.autoTable({
                 startY: 30,
-                head: [["ID Order", "Kios", "Distributor", "Lokasi", "Pesan", "Terima", "Sisa", "Nilai", "Status"]],
+                head: [["ID Order", "Kios", "Distributor", "Lokasi", "Durasi", "Pesan", "Terima", "Sisa", "Nilai", "Status"]],
                 body: displayData.map(r => [
                     r['Nomor Order'], r['Nama Kios'], r['Nama Distributor'], 
-                    r['Kecamatan'], r['Dipesan'], r['Diterima'], r['Sisa'], formatIDR(r['Harga']), r['Status']
+                    r['Kecamatan'], `${r['Durasi Order']}d`, r['Dipesan'], r['Diterima'], r['Sisa'], formatIDR(r['Harga']), r['Status']
                 ]),
                 theme: 'grid',
                 headStyles: { fillColor: [79, 70, 229], fontSize: 8 },
